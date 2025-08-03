@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homepage</title>
+    <title>My Cool Homepage</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Inter -->
@@ -154,12 +154,6 @@
             animation: gradientShift 8s ease infinite;
         }
 
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
         /* Style for the animated gradient button */
         .animated-gradient-btn {
             background: linear-gradient(90deg, #4285F4, #357AE8, #89b3ff, #4285F4);
@@ -192,7 +186,7 @@
                 </div>
                 <div class="text-center">
                     <p class="text-lg md:text-xl font-semibold mb-1 text-gray-100">
-                        <span id="greetingText" class="gradient-text">Hello, <span id="userName">User</span>!</span>
+                        <span id="greetingText" class="gradient-text cursor-pointer">Hello, <span id="userName">User</span>!</span>
                     </p>
                     <p id="currentDate" class="text-sm md:text-base text-gray-300"></p>
                 </div>
@@ -321,6 +315,7 @@
             const minuteHand = document.getElementById('minuteHand');
             const secondHand = document.getElementById('secondHand');
             const currentDateElem = document.getElementById('currentDate');
+            const greetingText = document.getElementById('greetingText');
             const userNameSpan = document.getElementById('userName');
             
             const temperatureElem = document.getElementById('temperature');
@@ -538,6 +533,11 @@
             }
 
             // --- Event Listeners ---
+            greetingText.addEventListener('click', () => {
+                userNameInput.value = localStorage.getItem('userName') || '';
+                userNameModal.classList.remove('hidden');
+            });
+
             locationContainer.addEventListener('click', () => {
                 newLocationInput.value = userLocation;
                 locationModal.classList.remove('hidden');
@@ -709,4 +709,4 @@
     </script>
 </body>
 </html>
->
+
