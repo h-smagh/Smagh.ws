@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homepage</title>
+    <title>My Cool Homepage</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Inter -->
@@ -626,6 +626,7 @@
             if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
                 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
                 const recognition = new SpeechRecognition();
+                let isListening = false;
                 
                 recognition.continuous = false;
                 recognition.lang = 'en-US';
@@ -636,6 +637,7 @@
                 const micPath2 = document.getElementById('mic-path-2');
 
                 recognition.onstart = () => {
+                    isListening = true;
                     searchQueryInput.placeholder = "Listening...";
                     if(micPath1) micPath1.setAttribute('fill', '#EA4335');
                     if(micPath2) micPath2.setAttribute('fill', '#EA4335');
@@ -663,6 +665,7 @@
                 };
 
                 recognition.onend = () => {
+                    isListening = false;
                     searchQueryInput.placeholder = "Search Google...";
                     if(micPath1) micPath1.setAttribute('fill', '#4285F4');
                     if(micPath2) micPath2.setAttribute('fill', '#34A853');
@@ -670,11 +673,15 @@
                 };
 
                 voiceSearchBtn.addEventListener('click', () => {
-                    try {
-                        recognition.start();
-                    } catch (e) {
-                        // This can happen if recognition is already started.
-                        console.error("Could not start recognition:", e);
+                    if (isListening) {
+                        recognition.stop();
+                    } else {
+                        try {
+                            recognition.start();
+                        } catch (e) {
+                            // This can happen if recognition is already started.
+                            console.error("Could not start recognition:", e);
+                        }
                     }
                 });
 
