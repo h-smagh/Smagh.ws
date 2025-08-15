@@ -38,7 +38,7 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            overflow: hidden; /* Prevent scrollbars if content slightly overflows */
+            overflow-y: auto; /* Allow vertical scrolling */
         }
         
         /* Custom scrollbar for better aesthetics */
@@ -154,6 +154,12 @@
             animation: gradientShift 8s ease infinite;
         }
 
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         /* Style for the animated gradient button */
         .animated-gradient-btn {
             background: linear-gradient(90deg, #4285F4, #357AE8, #89b3ff, #4285F4);
@@ -170,6 +176,11 @@
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
     <div class="main-content space-y-6">
+        <!-- Google Logo -->
+        <div class="flex justify-center pb-4">
+            <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_light_color_272x92dp.png" alt="Google Logo" class="h-16" style="filter: brightness(1.2);">
+        </div>
+
         <!-- Top Section: Clock & Weather -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl">
             <!-- Clock Card -->
@@ -186,7 +197,7 @@
                 </div>
                 <div class="text-center">
                     <p class="text-lg md:text-xl font-semibold mb-1 text-gray-100">
-                        <span id="greetingText" class="gradient-text cursor-pointer">Hello, <span id="userName">User</span>!</span>
+                        <span id="greetingText" class="gradient-text">Hello, <span id="userName">User</span>!</span>
                     </p>
                     <p id="currentDate" class="text-sm md:text-base text-gray-300"></p>
                 </div>
@@ -240,8 +251,8 @@
                     <!-- Google Microphone Icon -->
                     <svg class="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <g>
-                            <path fill="#4285F4" d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3z"></path>
-                            <path fill="#34A853" d="M17.3 12c0 3-2.54 5.1-5.3 5.1S6.7 15 6.7 12H5c0 3.41 2.72 6.23 6 6.72V22h2v-3.28c3.28-.49 6-3.31 6-6.72h-1.7z"></path>
+                            <path id="mic-path-1" fill="#4285F4" d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3z"></path>
+                            <path id="mic-path-2" fill="#34A853" d="M17.3 12c0 3-2.54 5.1-5.3 5.1S6.7 15 6.7 12H5c0 3.41 2.72 6.23 6 6.72V22h2v-3.28c3.28-.49 6-3.31 6-6.72h-1.7z"></path>
                         </g>
                     </svg>
                 </button>
@@ -315,7 +326,6 @@
             const minuteHand = document.getElementById('minuteHand');
             const secondHand = document.getElementById('secondHand');
             const currentDateElem = document.getElementById('currentDate');
-            const greetingText = document.getElementById('greetingText');
             const userNameSpan = document.getElementById('userName');
             
             const temperatureElem = document.getElementById('temperature');
@@ -533,11 +543,6 @@
             }
 
             // --- Event Listeners ---
-            greetingText.addEventListener('click', () => {
-                userNameInput.value = localStorage.getItem('userName') || '';
-                userNameModal.classList.remove('hidden');
-            });
-
             locationContainer.addEventListener('click', () => {
                 newLocationInput.value = userLocation;
                 locationModal.classList.remove('hidden');
@@ -626,18 +631,15 @@
                 recognition.lang = 'en-US';
                 recognition.interimResults = false;
                 recognition.maxAlternatives = 1;
-
-                const originalMicSVG = voiceSearchBtn.innerHTML;
-                const listeningMicSVG = `
-                    <svg class="w-5 h-5 animate-pulse" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3z" fill="#EA4335"/>
-                      <path d="M17 12h-2c0 2.76-2.24 5-5 5s-5-2.24-5-5H3c0 3.53 2.61 6.43 6 6.92V22h2v-3.08c3.39-.49 6-3.39 6-6.92z" fill="#EA4335"/>
-                    </svg>
-                `;
+                
+                const micPath1 = document.getElementById('mic-path-1');
+                const micPath2 = document.getElementById('mic-path-2');
 
                 recognition.onstart = () => {
                     searchQueryInput.placeholder = "Listening...";
-                    voiceSearchBtn.innerHTML = listeningMicSVG; // Change icon to listening state
+                    if(micPath1) micPath1.setAttribute('fill', '#EA4335');
+                    if(micPath2) micPath2.setAttribute('fill', '#EA4335');
+                    voiceSearchBtn.classList.add('animate-pulse');
                 };
 
                 recognition.onresult = (event) => {
@@ -662,7 +664,9 @@
 
                 recognition.onend = () => {
                     searchQueryInput.placeholder = "Search Google...";
-                    voiceSearchBtn.innerHTML = originalMicSVG; // Restore original icon
+                    if(micPath1) micPath1.setAttribute('fill', '#4285F4');
+                    if(micPath2) micPath2.setAttribute('fill', '#34A853');
+                    voiceSearchBtn.classList.remove('animate-pulse');
                 };
 
                 voiceSearchBtn.addEventListener('click', () => {
@@ -682,6 +686,9 @@
 
             // --- Initial Setup ---
             function initialize() {
+                // Clear search bar on load
+                searchQueryInput.value = '';
+
                 // Clock
                 setInterval(updateClock, 1000);
                 updateClock();
@@ -709,4 +716,3 @@
     </script>
 </body>
 </html>
-
